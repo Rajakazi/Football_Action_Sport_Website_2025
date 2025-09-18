@@ -19,6 +19,14 @@ include '../config.php';
 <a href="event.php">add Event</a>
 <a href="gallery_upload.php">Image Add</a>
 <a href="messages.php">Contact</a>
+<a href="live_admin.php">live link add</a>
+<a href="football_news.php">Football news add</a>
+<a href="add_calender.php">fifa calendar add</a>
+<a href="admin_ranking.php">add Ranking</a>
+<a href="admin_club_ranking.php">add club ranking</a>
+<a href="admin_lineup.php">National Line-Up</a>
+<a href="admin_bio.php">add player bio</a>
+
 
 
 <hr>

@@ -1,56 +1,21 @@
 <?php
-require_once "config.php";
-$news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
-$slider_result = $conn->query("SELECT * FROM slider ORDER BY id DESC");
-$adv_result = $conn->query("SELECT * FROM adv_slider ORDER BY id DESC");
-$mysqli = new mysqli("localhost", "root", "Milan@1234", "football_action");
-$points = $mysqli->query("SELECT * FROM uploads WHERE type='points' ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
-$fixture = $mysqli->query("SELECT * FROM uploads WHERE type='fixture' ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
-
-// detect DB variable
-$db = isset($conn) ? $conn : (isset($mysqli) ? $mysqli : null);
-if (!$db) die("DB connection missing.");
-
+include "config.php";
+$now = date("Y-m-d H:i:s");
 // get search keyword if any
 $keyword = trim($_GET['search'] ?? '');
-
-// base query
-$sql = "SELECT id, title, summary, image, created_at FROM news";
-
-// if keyword provided, add WHERE condition
-if ($keyword !== '') {
-    $safe = $db->real_escape_string($keyword);
-    $sql .= " WHERE title LIKE '%$safe%' OR summary LIKE '%$safe%' OR content LIKE '%$safe%'";
-}
-
-$sql .= " ORDER BY created_at DESC";
-$result = $db->query($sql);
-
-// Handle Newsletter Subscription
-if (isset($_POST['subscribe'])) {
-  $email = trim($_POST['email'] ?? '');
-
-  if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $stmt = $conn->prepare("INSERT INTO newsletter (email) VALUES (?)");
-      $stmt->bind_param("s", $email);
-      if ($stmt->execute()) {
-          $message = "✅ Thank you for subscribing!";
-      } else {
-          $message = "❌ Something went wrong!";
-      }
-  } else {
-      $message = "⚠️ Please enter a valid email.";
-  }
-}
+// Fetch all matches
+$res = $conn->query("SELECT * FROM matches ORDER BY match_time ASC");
+$news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Football Action - News</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 <header>
@@ -68,7 +33,6 @@ if (isset($_POST['subscribe'])) {
   <a href="contact.php">Contact</a>
   <a href="about.php">More</a>
 </nav>
-
     <div class="nav-right">
       <form method="get" class="search-bar">
         <input type="text" name="search" placeholder="Search news..." value="<?=htmlspecialchars($keyword)?>">
@@ -77,8 +41,7 @@ if (isset($_POST['subscribe'])) {
     </div>
   </div>
 </header>
-
-<!-- News Ticker -->
+    <!-- News Ticker -->
 <div class="news-ticker">
   <span class="label">Top News:</span>
   <marquee behavior="scroll" direction="left" scrollamount="6">
@@ -91,7 +54,6 @@ if (isset($_POST['subscribe'])) {
     <?php endif; ?>
   </marquee>
 </div>
-
 <!-- Secondary Navbar -->
 <div class="sub-navbar">
     <div  class="logo">
@@ -101,25 +63,22 @@ if (isset($_POST['subscribe'])) {
     <div  class="logo-main">
       <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
     </div>
-
-
   <div class="sub-container">
   <a href="live.php">Live</a>
   <div class="dropdown">
     <a href="#">FIFA</a>
     <div class="dropdown-content">
-    <a href="fifa_rankiing.php">FIFA Ranking</a>
-    <a href="club_ranking.php">Club Ranking</a>
-    <a href="fifa_calender.php">Calender</a>
+      <a href="#">National XI</a>
+      <a href="#">English-PL</a>
+      <a href="#">La-Liga</a>
   </div>
   </div>
-
  <div class="dropdown">
     <a href="#">Line-Up</a>
     <div class="dropdown-content">
-      <a href="lineup.php">National XI</a>
-      <a href="lineup.php">English-PL</a>
-      <a href="lineup.php">La-Liga</a>
+      <a href="#">National XI</a>
+      <a href="#">English-PL</a>
+      <a href="#">La-Liga</a>
   </div>
   </div>
   <div class="dropdown">
@@ -145,7 +104,7 @@ if (isset($_POST['subscribe'])) {
   <div class="dropdown">
     <a href="#">Players</a>
     <div class="dropdown-content">
-      <a href="bio.php">National XI</a>
+      <a href="#">National XI</a>
       <a href="#">English-PL</a>
       <a href="#">La-Liga</a>
   </div>
@@ -207,99 +166,107 @@ if (isset($_POST['subscribe'])) {
 
   </div>
   </div>
-
-  <div class="slider-container">
-    <div class="slider-wrapper" id="sliderWrapper">
-        <?php while($row = $slider_result->fetch_assoc()): ?>
-        <div class="slide">
-            <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="Slider Image">
-        </div>
-        <?php endwhile; ?>
+  <br><br>
+     <!-- Title with lines -->
+     <div class="adv-title">
+        <span>Live Streeming</span>
     </div>
-    <div class="dots" id="dotsContainer"></div>
-</div>
-
-<div class="adv-section">
-    <!-- Title with lines -->
-    <div class="adv-title">
-        <span>Advertisement Here</span>
-    </div>
-
-    <!-- Advertisement Slider -->
-    <div class="adv-slider-container">
-        <div class="adv-slider-wrapper" id="advSlider">
-            <?php while($row = $adv_result->fetch_assoc()): ?>
-            <div class="adv-slide">
-                <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="Advertisement">
-            </div>
-            <?php endwhile; ?>
-        </div>
-    </div>
-</div>
-   <!-- like adv-slider-container -->
-<div class="adv-slider-container">
-    <div class="adv-slider-wrapper" id="advSlider">
-        <?php while($row = $adv_result->fetch_assoc()): ?>
-        <div class="adv-slide">
-            <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="Advertisement">
-        </div>
-        <?php endwhile; ?>
-    </div>
-</div>
-<div class="latest-news-box">
-    <div class="latest-news-title">
-        <span>Latest News</span>
-    </div>
-</div>
-
-  <div class="container">
-    <?php if ($result && $result->num_rows > 0): ?>
-      <?php while ($row = $result->fetch_assoc()): ?>
-        <div class="card">
-          <?php if (!empty($row['image'])): ?>
-            <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="<?=htmlspecialchars($row['title'])?>">
-          <?php endif; ?>
-          <div class="card-body">
-            <h3><?=htmlspecialchars($row['title'])?></h3>
-            <p><?=htmlspecialchars($row['summary'])?></p>
-            <a href="news.php?id=<?=$row['id']?>">Read More</a>
+    <br>
+<?php if($res && $res->num_rows > 0): ?>
+    <?php while($row = $res->fetch_assoc()): ?>
+        <?php 
+            $links = json_decode($row['links'], true);
+            $status = ($now >= $row['match_time']) ? "LIVE" : "UPCOMING";
+        ?>
+        <div class="match-card">
+          <div class="match-left">
+            <?= htmlspecialchars($row['match_name']) ?>
+          </div>
+          <div class="match-center">
+            <?= htmlspecialchars($row['match_type']) ?> | 
+            <?php if($status=="UPCOMING"): ?>
+              <span class="countdown" data-time="<?= $row['match_time'] ?>"></span>
+            <?php endif; ?>
+            <span class="status <?= $status ?>"><?= $status ?></span>
+          </div>
+          <div class="match-right">
+            <?php if(is_array($links) && count($links) > 1): ?>
+              <div class="dropdown">
+                <button class="dropdown-btn">Watch</button>
+                <div class="dropdown-content">
+                  <?php foreach($links as $link): ?>
+                    <button onclick="showLive('<?= $link ?>')">Link</button>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            <?php elseif(is_array($links) && count($links) == 1): ?>
+              <button class="watch-btn" onclick="showLive('<?= $links[0] ?>')">Watch</button>
+            <?php endif; ?>
           </div>
         </div>
-      <?php endwhile; ?>
-    <?php else: ?>
-      <div class="no-results">No news found.</div>
-    <?php endif; ?>
-  </div>
-  
-  <div class="adv-title">
-        <span>La-Liga Fixture</span>
-    </div>
+    <?php endwhile; ?>
+<?php else: ?>
+    <p>No matches available.</p>
+<?php endif; ?>
 
-    <div class="top-images">
-  <?php 
-    // Fetch all fixture images
-    $fixture_result = $conn->query("SELECT * FROM uploads WHERE type='fixture' ORDER BY id DESC");
-    while($row = $fixture_result->fetch_assoc()): 
-  ?>
-    <img src="uploads/<?= htmlspecialchars($row['image']); ?>" alt="Fixture">
-  <?php endwhile; ?>
-</div>
+<iframe id="liveFrame" src="" style="display:none;"></iframe>
+
+<script>
+function showLive(link){
+    const iframe = document.getElementById('liveFrame');
+    iframe.src = link;
+    iframe.style.display = 'block';
+    iframe.scrollIntoView({behavior:'smooth'});
+}
+
+function countdown(){
+    const elements = document.querySelectorAll('.countdown');
+    const now = new Date().getTime();
+    elements.forEach(el=>{
+        const matchTime = new Date(el.dataset.time).getTime();
+        const distance = matchTime - now;
+
+        if(distance > 0){
+            const days = Math.floor(distance / (1000*60*60*24));
+            const hours = Math.floor((distance % (1000*60*60*24))/(1000*60*60));
+            const minutes = Math.floor((distance % (1000*60*60))/(1000*60));
+            const seconds = Math.floor((distance % (1000*60))/1000);
+            el.innerText = days+'d '+hours+'h '+minutes+'m '+seconds+'s';
+        } else {
+            el.innerText = "LIVE";
+            el.classList.remove('UPCOMING');
+            el.classList.add('LIVE');
+        }
+    });
+}
+
+setInterval(countdown, 1000);
+countdown();
 
 
-  <div class="adv-title">
-        <span>Primer League Point Table</span>
-    </div>
-    <div class="top-images">
-  <?php 
-    // Fetch all points images
-    $points_result = $conn->query("SELECT * FROM uploads WHERE type='points' ORDER BY id DESC");
-    while($row = $points_result->fetch_assoc()): 
-  ?>
-    <img src="uploads/<?= htmlspecialchars($row['image']); ?>" alt="Football Points">
-  <?php endwhile; ?>
-</div>
+// Add this to your existing JavaScript file or in a new script tag
 
-  <footer class="footer">
+function startLiveAnimation() {
+    // Find all elements with the 'status LIVE' classes
+    const liveElements = document.querySelectorAll('.status.LIVE');
+    
+    // Check if any live elements were found
+    if (liveElements.length > 0) {
+        // Iterate through each live element
+        liveElements.forEach(element => {
+            // Apply a class that triggers the CSS animation
+            // The class 'animating' is a good practice to separate concerns
+            element.classList.add('animating');
+        });
+    }
+}
+
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', startLiveAnimation);
+</script>
+
+
+<footer class="footer">
     <div class="footer-container">
 
       <!-- Logo -->
@@ -347,31 +314,30 @@ if (isset($_POST['subscribe'])) {
     </div>
 </footer>
 
-
         <!-- Mobile all part here now so here full code -->
-<nav class="mobile-nav">
-<a href="football_news_front.php" class="nav-item">
-  <i class="fas fa-newspaper"></i>
-  <span>News</span>
+        <nav class="mobile-nav">
+        <a href="history.php" class="nav-item">
+    <i class="fas fa-history"></i>
+    <span>History</span>
 </a>
+
 <a href="live.php" class="nav-item">
         <i class="fas fa-broadcast-tower"></i>
-        <span>Live</span>
+        <span>National</span>
     </a>
         <div class="mobile-nav-item mobile-center">
             <a href="index.php" class="home-btn">
                 <i class="fas fa-home"></i>
             </a>
         </div>
-        <a href="event.php" class="nav-item">
-    <i class="fas fa-calendar-alt"></i>
-    <span>Event</span>
+        <a href="live.php" class="nav-item">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>Club</span>
+    </a>
+<a href="contact.php" class="nav-item">
+    <i class="fas fa-user"></i>
+    <span>Contact</span>
 </a>
-<a href="draw.php" class="nav-item">
-  <i class="fas fa-user"></i> <!-- Profile icon -->
-  <span>Player</span>
-</a>
-
 
 <!-- Mobile Top Navbar -->
 <div class="mobile-top-nav">
@@ -406,9 +372,10 @@ if (isset($_POST['subscribe'])) {
     <a href="#">Injury Update</a>
     <a href="#">Top News</a>
     <a href="#">Club</a>
-    <a href="football_news_front.php">Transfers</a>
+    <a href="#">Transfers</a>
 </div>
 
 <script src="js/scrip.js"></script>
+
 </body>
 </html>

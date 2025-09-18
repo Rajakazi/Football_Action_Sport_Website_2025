@@ -1,16 +1,18 @@
 <?php
-include 'config.php';
-$news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
+include "config.php";
+$res = $conn->query("SELECT * FROM calendar ORDER BY created_at DESC");
 // get search keyword if any
 $keyword = trim($_GET['search'] ?? '');
-// Fetch club and lineup info
-$club = $conn->query("SELECT * FROM club_info ORDER BY id DESC LIMIT 1")->fetch_assoc();
-$lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
+$news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title><?= htmlspecialchars($club['club_name'] ?? 'Club') ?> - Line-Up</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Calendar</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -69,8 +71,8 @@ $lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
   <div class="dropdown">
     <a href="#">FIFA</a>
     <div class="dropdown-content">
-    <a href="fifa_rankiing.php">FIFA Ranking</a>
-    <a href="club_ranking.php">Club Ranking</a>
+    <a href="#">FIFA Ranking</a>
+    <a href="#">Club Ranking</a>
     <a href="fifa_calender.php">Calender</a>
   </div>
   </div>
@@ -78,7 +80,7 @@ $lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
  <div class="dropdown">
     <a href="#">Line-Up</a>
     <div class="dropdown-content">
-      <a href="lineup.php">National XI</a>
+      <a href="#">National XI</a>
       <a href="#">English-PL</a>
       <a href="#">La-Liga</a>
   </div>
@@ -168,52 +170,85 @@ $lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
 
   </div>
   </div>
-  <br>
+
   <div class="adv-title">
-        <span>Line up</span>
+        <span>Advertisement Here</span>
     </div>
-<br>
-<div class="container-milan">
-<?php while ($row = $lineup->fetch_assoc()): ?>
-    <div class="card">
-        <img src="uploads/<?= htmlspecialchars($row['image']) ?>" alt="Player Image">
-        <div class="card-top-overlay">
-            <p><?= htmlspecialchars($club['club_name'] ?? 'Club Name') ?></p>
-        </div>
-        <div class="card-bottom-info">
-            <p>Coach: <?= htmlspecialchars($club['coach_name'] ?? 'Coach Name') ?></p>
-            <p>Captain: <?= htmlspecialchars($club['captain_name'] ?? 'Captain Name') ?></p>
-        </div>
-    </div>
+<div class="calendar-container">
+<?php while($row=$res->fetch_assoc()): ?>
+<article class="event-card" onclick="openModal('uploads/<?= htmlspecialchars($row['image']) ?>')">
+    <figure>
+        <img src="uploads/<?= htmlspecialchars($row['image']) ?>" alt="<?= htmlspecialchars($row['title']) ?>">
+        <figcaption class="event-card-body">
+            <h3><?= htmlspecialchars($row['title']) ?></h3>
+            <p><?= htmlspecialchars($row['description']) ?></p>
+        </figcaption>
+    </figure>
+</article>
 <?php endwhile; ?>
 </div>
 
-<div class="image-modal">
-    <img src="" alt="Full Screen Image">
+<!-- Modal -->
+<div id="imageModal" class="modal-main">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <div class="modal-main-content">
+        <img id="modalImg" src="" alt="">
+    </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const cards = document.querySelectorAll('.card');
-        const modal = document.querySelector('.image-modal');
-        const modalImage = document.querySelector('.image-modal img');
+// Open modal
+function openModal(src){
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImg');
+    modal.style.display = 'flex';
+    modalImg.src = src;
+    document.body.style.overflow = 'hidden'; // prevent scrolling
+}
 
-        cards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                const image = card.querySelector('img');
-                if (image) {
-                    modalImage.src = image.src;
-                    modal.classList.add('active');
-                }
-            });
-        });
-
-        modal.addEventListener('click', () => {
-            modal.classList.remove('active');
-            modalImage.src = '';
-        });
-    });
+// Close modal
+function closeModal(){
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // restore scrolling
+}
 </script>
-<?php include 'footer.php'; ?>
+
+<footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-section footer-logo">
+                <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Company Logo" class="footer-logo-img">
+                <p>A beautiful website for a beautiful cause. Connect with us on social media!</p>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-section footer-links">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">Portfolio</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section footer-contact">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Main Street, City, Country</p>
+                <p><i class="fas fa-phone"></i> +977-9876543210</p>
+                <p><i class="fas fa-envelope"></i> info@yourcompany.com</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; <?php echo date("Y"); ?> Your Company. All Rights Reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>

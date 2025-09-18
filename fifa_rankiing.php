@@ -1,16 +1,16 @@
 <?php
-include 'config.php';
+include "config.php";
+$res = $conn->query("SELECT * FROM ranking ORDER BY created_at DESC");
 $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
 // get search keyword if any
 $keyword = trim($_GET['search'] ?? '');
-// Fetch club and lineup info
-$club = $conn->query("SELECT * FROM club_info ORDER BY id DESC LIMIT 1")->fetch_assoc();
-$lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title><?= htmlspecialchars($club['club_name'] ?? 'Club') ?> - Line-Up</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Football Ranking</title>
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -70,7 +70,7 @@ $lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
     <a href="#">FIFA</a>
     <div class="dropdown-content">
     <a href="fifa_rankiing.php">FIFA Ranking</a>
-    <a href="club_ranking.php">Club Ranking</a>
+    <a href="#">Club Ranking</a>
     <a href="fifa_calender.php">Calender</a>
   </div>
   </div>
@@ -78,7 +78,7 @@ $lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
  <div class="dropdown">
     <a href="#">Line-Up</a>
     <div class="dropdown-content">
-      <a href="lineup.php">National XI</a>
+      <a href="#">National XI</a>
       <a href="#">English-PL</a>
       <a href="#">La-Liga</a>
   </div>
@@ -168,52 +168,42 @@ $lineup = $conn->query("SELECT * FROM lineup ORDER BY id ASC");
 
   </div>
   </div>
-  <br>
-  <div class="adv-title">
-        <span>Line up</span>
-    </div>
 <br>
-<div class="container-milan">
-<?php while ($row = $lineup->fetch_assoc()): ?>
-    <div class="card">
-        <img src="uploads/<?= htmlspecialchars($row['image']) ?>" alt="Player Image">
-        <div class="card-top-overlay">
-            <p><?= htmlspecialchars($club['club_name'] ?? 'Club Name') ?></p>
-        </div>
-        <div class="card-bottom-info">
-            <p>Coach: <?= htmlspecialchars($club['coach_name'] ?? 'Coach Name') ?></p>
-            <p>Captain: <?= htmlspecialchars($club['captain_name'] ?? 'Captain Name') ?></p>
-        </div>
+  <div class="adv-title">
+        <span>Advertisement Here</span>
     </div>
+    <br>
+<div class="ranking-container">
+<?php while($row=$res->fetch_assoc()): ?>
+<div class="rank-card" onclick="openModal('uploads/<?=$row['image']?>')">
+    <img src="uploads/<?=$row['image']?>" alt="<?=htmlspecialchars($row['title'])?>">
+    <div class="rank-body">
+        <h3><?=htmlspecialchars($row['title'])?></h3>
+        <p><?=htmlspecialchars($row['description'])?></p>
+        <small style="color:gray;"><?=ucwords(str_replace('_',' ',$row['category']))?></small>
+    </div>
+</div>
 <?php endwhile; ?>
 </div>
 
-<div class="image-modal">
-    <img src="" alt="Full Screen Image">
+<!-- Modal -->
+<div id="imageModal" class="modal-main">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <div class="modal-main-content">
+        <img id="modalImg" src="" alt="">
+    </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const cards = document.querySelectorAll('.card');
-        const modal = document.querySelector('.image-modal');
-        const modalImage = document.querySelector('.image-modal img');
-
-        cards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                const image = card.querySelector('img');
-                if (image) {
-                    modalImage.src = image.src;
-                    modal.classList.add('active');
-                }
-            });
-        });
-
-        modal.addEventListener('click', () => {
-            modal.classList.remove('active');
-            modalImage.src = '';
-        });
-    });
+function openModal(src){
+    document.getElementById('imageModal').style.display='flex';
+    document.getElementById('modalImg').src=src;
+    document.body.style.overflow='hidden';
+}
+function closeModal(){
+    document.getElementById('imageModal').style.display='none';
+    document.body.style.overflow='auto';
+}
 </script>
-<?php include 'footer.php'; ?>
 </body>
 </html>

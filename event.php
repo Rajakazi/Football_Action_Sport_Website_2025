@@ -37,8 +37,16 @@ $news = $conn->query("SELECT * FROM news ORDER BY news_date ASC LIMIT 5");
 $news = $conn->query("SELECT * FROM news ORDER BY id DESC LIMIT 5");
 
 ?>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Football Action - News</title>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
 <header>
   <div class="nav-container">
     <div  class="logo">
@@ -59,8 +67,6 @@ $news = $conn->query("SELECT * FROM news ORDER BY id DESC LIMIT 5");
       <form method="get" class="search-bar">
         <input type="text" name="search" placeholder="Search news..." value="<?=htmlspecialchars($keyword)?>">
       </form>
-      <a href="login.php" class="login-btn">Login</a> 
-       <a href="login.php" class="login-btn">Sign Up</a>
     </div>
   </div>
 </header>
@@ -135,16 +141,6 @@ $news = $conn->query("SELECT * FROM news ORDER BY id DESC LIMIT 5");
         </div>
         <?php endwhile; ?>
     </div>
-
-    <div class="right-sidebar" style="flex:1;background:#f9f9f9;padding:15px;border-radius:10px;">
-        <h3 style="margin-bottom:15px;color:#0b74de;">Upcoming News</h3>
-        <?php while($row = $news->fetch_assoc()): ?>
-        <div class="news-item" style="background:#fff;padding:10px;margin-bottom:10px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-            <h4><?=htmlspecialchars($row['title'])?></h4>
-            <p><?=htmlspecialchars($row['news_date'])?> <?=htmlspecialchars($row['news_time'])?></p>
-        </div>
-        <?php endwhile; ?>
-    </div>
 </div>
 
 <footer class="footer">
@@ -194,3 +190,69 @@ $news = $conn->query("SELECT * FROM news ORDER BY id DESC LIMIT 5");
         <p>&copy; <?= date("Y") ?> Football Action. All rights reserved.</p>
     </div>
 </footer>
+
+
+        <!-- Mobile all part here now so here full code -->
+        <nav class="mobile-nav">
+        <a href="news.php" class="nav-item">
+        <i class="fas fa-calendar-alt"></i>
+  <span>Fixture</span>
+</a>
+<a href="gallery.php" class="nav-item">
+  <i class="fas fa-images"></i> <!-- Gallery icon -->
+  <span>Gallery</span>
+</a>
+
+        <div class="mobile-nav-item mobile-center">
+            <a href="index.php" class="home-btn">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+        <a href="draw.php" class="nav-item">
+        <i class="fas fa-project-diagram"></i>
+  <span>Draw</span>
+</a>
+<a href="movie.php" class="nav-item">
+    <i class="fas fa-film"></i>
+    <span>Show</span>
+</a>
+
+<!-- Mobile Top Navbar -->
+<div class="mobile-top-nav">
+    <!-- Left: Logo -->
+    <div class="mobile-logo">
+        <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Logo">
+    </div>
+    <div  class="logo-main">
+      <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
+    </div>
+
+
+    <!-- Right: Hamburger -->
+    <div class="mobile-right">
+        <div class="hamburger" onclick="toggleMobileMenu()">&#9776;</div>
+    </div>
+</div>
+
+<!-- Mobile Sidebar -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+        <h3>Football Action</h3>
+        <div class="close-btn" onclick="toggleMobileMenu()">×</div>
+    </div>
+    <a href="#">FIFA</a>
+    <a href="#">Line-Up</a>
+    <a href="#">Point Table</a>
+    <a href="#">Schedules</a>
+    <a href="#">Players</a>
+    <a href="#">Important News</a>
+    <a href="#">Matches</a>
+    <a href="#">Injury Update</a>
+    <a href="#">Top News</a>
+    <a href="#">Club</a>
+    <a href="#">Transfers</a>
+</div>
+
+<script src="js/scrip.js"></script>
+</body>
+</html>

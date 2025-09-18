@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact Us - Football Sports</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
@@ -173,5 +173,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <p>&copy; <?= date("Y") ?> Football Action. All rights reserved.</p>
     </div>
 </footer>
+
+
+        <!-- Mobile all part here now so here full code -->
+        <nav class="mobile-nav">
+<a href="#" class="nav-item">
+    <i class="fas fa-history"></i>
+    <span>History</span>
+</a>
+
+<a href="#" class="nav-item">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>Live</span>
+    </a>
+        <div class="mobile-nav-item mobile-center">
+            <a href="index.php" class="home-btn">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+        <a href="#" class="nav-item">
+    <i class="fas fa-calendar-alt"></i>
+    <span>Event</span>
+</a>
+<a href="contact.php" class="nav-item">
+    <i class="fas fa-user"></i>
+    <span>Contact</span>
+</a>
+
+<!-- Mobile Top Navbar -->
+<div class="mobile-top-nav">
+    <!-- Left: Logo -->
+    <div class="mobile-logo">
+        <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Logo">
+    </div>
+    <div  class="logo-main">
+      <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
+    </div>
+
+
+    <!-- Right: Hamburger -->
+    <div class="mobile-right">
+        <div class="hamburger" onclick="toggleMobileMenu()">&#9776;</div>
+    </div>
+</div>
+
+<!-- Mobile Sidebar -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+        <h3>Menu</h3>
+        <div class="close-btn" onclick="toggleMobileMenu()">×</div>
+    </div>
+    <a href="#">Home</a>
+    <a href="#">Live</a>
+    <a href="#">Event</a>
+    <a href="#">History</a>
+    <a href="#">Contact</a>
+    <a href="#">Players</a>
+    <a href="#">Club</a>
+</div>
+
+<script src="js/scrip.js"></script>
 </body>
 </html>
