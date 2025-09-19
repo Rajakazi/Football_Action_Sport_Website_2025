@@ -1,18 +1,18 @@
 <?php
-include "config.php";
-$res = $conn->query("SELECT * FROM ranking ORDER BY created_at DESC");
+require_once "config.php";
 $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
 // get search keyword if any
 $keyword = trim($_GET['search'] ?? '');
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Football Ranking</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="assets/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title></title>
 </head>
 <body>
 <header>
@@ -71,7 +71,7 @@ $keyword = trim($_GET['search'] ?? '');
     <a href="#">FIFA</a>
     <div class="dropdown-content">
     <a href="fifa_rankiing.php">FIFA Ranking</a>
-    <a href="#">Club Ranking</a>
+    <a href="club_ranking.php">Club Ranking</a>
     <a href="fifa_calender.php">Calender</a>
   </div>
   </div>
@@ -79,9 +79,9 @@ $keyword = trim($_GET['search'] ?? '');
  <div class="dropdown">
     <a href="#">Line-Up</a>
     <div class="dropdown-content">
-      <a href="#">National XI</a>
-      <a href="#">English-PL</a>
-      <a href="#">La-Liga</a>
+      <a href="lineup.php">National XI</a>
+      <a href="lineup.php">English-PL</a>
+      <a href="lineup.php">La-Liga</a>
   </div>
   </div>
   <div class="dropdown">
@@ -107,7 +107,7 @@ $keyword = trim($_GET['search'] ?? '');
   <div class="dropdown">
     <a href="#">Players</a>
     <div class="dropdown-content">
-      <a href="#">National XI</a>
+      <a href="bio.php">National XI</a>
       <a href="#">English-PL</a>
       <a href="#">La-Liga</a>
   </div>
@@ -169,106 +169,7 @@ $keyword = trim($_GET['search'] ?? '');
 
   </div>
   </div>
-<br>
-  <div class="adv-title">
-        <span>Advertisement Here</span>
-    </div>
-    <br>
-<div class="ranking-container">
-<?php while($row=$res->fetch_assoc()): ?>
-<div class="rank-card" onclick="openModal('uploads/<?=$row['image']?>')">
-    <img src="uploads/<?=$row['image']?>" alt="<?=htmlspecialchars($row['title'])?>">
-    <div class="rank-body">
-        <h3><?=htmlspecialchars($row['title'])?></h3>
-        <p><?=htmlspecialchars($row['description'])?></p>
-        <small style="color:gray;"><?=ucwords(str_replace('_',' ',$row['category']))?></small>
-    </div>
-</div>
-<?php endwhile; ?>
-</div>
-
-<!-- Modal -->
-<div id="imageModal" class="modal-main">
-    <span class="close-btn" onclick="closeModal()">&times;</span>
-    <div class="modal-main-content">
-        <img id="modalImg" src="" alt="">
-    </div>
-</div>
-
-<script>
-function openModal(src){
-    document.getElementById('imageModal').style.display='flex';
-    document.getElementById('modalImg').src=src;
-    document.body.style.overflow='hidden';
-}
-function closeModal(){
-    document.getElementById('imageModal').style.display='none';
-    document.body.style.overflow='auto';
-}
-</script>
-
-
-        <!-- Mobile all part here now so here full code -->
-        <nav class="mobile-nav">
-<a href="football_news_front.php" class="nav-item">
-<i class="fa-solid fa-earth-asia"></i>
-  <span>Asia</span>
-</a>
-<a href="live.php" class="nav-item">
-<i class="fa-solid fa-earth-americas"></i>
-        <span>South</span>
-    </a>
-        <div class="mobile-nav-item mobile-center">
-            <a href="index.php" class="home-btn">
-                <i class="fas fa-home"></i>
-            </a>
-        </div>
-        <a href="event.php" class="nav-item">
-        <i class="fa-solid fa-earth-europe"></i>
-    <span>Europ</span>
-</a>
-<a href="draw.php" class="nav-item">
-<i class="fa-solid fa-earth-africa"></i> <!-- Profile icon -->
-  <span>Africa</span>
-</a>
-
-
-<!-- Mobile Top Navbar -->
-<div class="mobile-top-nav">
-    <!-- Left: Logo -->
-    <div class="mobile-logo">
-        <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Logo">
-    </div>
-    <div  class="logo-main">
-      <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
-    </div>
-
-
-    <!-- Right: Hamburger -->
-    <div class="mobile-right">
-        <div class="hamburger" onclick="toggleMobileMenu()">&#9776;</div>
-    </div>
-</div>
-
-<!-- Mobile Sidebar -->
-<div class="mobile-sidebar" id="mobileSidebar">
-    <div class="sidebar-header">
-        <h3>Football Action</h3>
-        <div class="close-btn" onclick="toggleMobileMenu()">×</div>
-    </div>
-    <a href="#">FIFA</a>
-    <a href="#">Line-Up</a>
-    <a href="#">Point Table</a>
-    <a href="#">Schedules</a>
-    <a href="#">Players</a>
-    <a href="#">Important News</a>
-    <a href="#">Matches</a>
-    <a href="#">Injury Update</a>
-    <a href="#">Top News</a>
-    <a href="#">Club</a>
-    <a href="football_news_front.php">Transfers</a>
-</div>
-
-<script src="js/scrip.js"></script>
+  
+  <script src="js/scrip.js"></script> 
 </body>
 </html>

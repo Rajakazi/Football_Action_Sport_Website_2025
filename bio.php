@@ -3,160 +3,221 @@ include 'config.php';
 $player_bios = $conn->query("SELECT * FROM player_bios ORDER BY id ASC");
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Bios</title>
     <style>
-        body { font-family: Poppins, sans-serif; background: #f4f6f9; margin: 0; padding: 0; }
-        header { background: linear-gradient(135deg, #0b74de, #074a99); padding: 15px 30px; color: #fff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-        header .logo img { height: 50px; width: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; }
-        .navbar { display: flex; gap: 15px; flex-wrap: wrap; }
-        .navbar a { color: #fff; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-weight: 500; transition: all 0.3s ease; }
-        .navbar a:hover { background: #ffdd57; color: #074a99; }
         
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 0 15px;
+        /* Player Card Styling */
+        .bio-card {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
-        .bio-section {
-            background-color: #fff;
+        .bio-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Card Header */
+        .card-header {
+            background: linear-gradient(135deg, #0b74de, #074a99);
+            color: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 4px;
+            background-color: #ffdd57;
+            border-radius: 2px;
+        }
+
+        /* Card Body & Details */
+        .card-body {
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
             display: flex;
             gap: 30px;
             align-items: flex-start;
             flex-wrap: wrap;
         }
-
-        /* Image and details layout */
         .bio-image-container {
-            flex: 0 0 150px;
+            flex-shrink: 0;
             text-align: center;
         }
         .bio-image {
             width: 150px;
             height: 200px;
             object-fit: cover;
-            border: 3px solid #0b74de;
-            border-radius: 5px;
+            border: 4px solid #0b74de;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
-        .bio-form {
-            flex: 1;
+        .bio-details {
+            flex-grow: 1;
         }
-        .bio-form .form-group {
+        .bio-details .form-group {
             margin-bottom: 15px;
             display: flex;
             align-items: flex-start;
+            gap: 10px;
         }
-        .bio-form .form-group label {
-            font-weight: bold;
-            color: #0b74de;
-            flex-basis: 150px;
+        .bio-details .form-group label {
+            font-weight: 600;
+            color: #074a99;
+            flex: 0 0 120px; /* Consistent width for labels */
         }
-        .bio-form .form-group p {
+        .bio-details .form-group p {
             margin: 0;
-            flex: 1;
+            margin-top: 15px;
             color: #555;
-        }
-        
-        h2 {
-            color: #0b74de;
-            margin-top: 0;
-            margin-bottom: 20px;
-            text-align: center;
-            width: 100%;
+            flex-grow: 10;
+            line-height: 1.5;
         }
 
-        /* Separator line */
-        .bio-section:not(:last-child) {
-            border-bottom: 2px solid #ddd;
-        }
-        
-        @media (min-width: 768px) {
-            .bio-section {
-                flex-direction: row;
-            }
-            .bio-image-container {
-                order: 2;
-            }
-            .bio-form {
-                order: 1;
-            }
-        }
-        
+        /* Responsive adjustments */
         @media (max-width: 767px) {
-            .bio-section {
+            .container {
+                grid-template-columns: 1fr; /* Stack into a single column on small screens */
+            }
+            .card-body {
                 flex-direction: column;
                 align-items: center;
             }
             .bio-image-container {
-                width: 100%;
+                margin-bottom: 25px;
             }
-            .bio-form .form-group {
+            .bio-details .form-group {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            .bio-form .form-group label {
+            .bio-details .form-group label {
                 margin-bottom: 5px;
-                flex-basis: auto;
             }
         }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="logo">
-        <img src="img/default_logo.png" alt="Club Logo">
-    </div>
-    <div class="navbar">
-        <a href="index.php">Home</a>
-        <a href="lineup.php">Line-Up</a>
-        <a href="bio.php">Player Bios</a>
-        <a href="contact.php">Contact</a>
-    </div>
-</header>
+<?php include 'header.php'; ?>
 
 <div class="container">
     <?php while ($row = $player_bios->fetch_assoc()): ?>
-    <div class="bio-section">
-        <h2><?= htmlspecialchars($row['full_name']) ?></h2>
-        
-        <div class="bio-form">
-            <div class="form-group">
-                <label>Age:</label>
-                <p><?= htmlspecialchars($row['age']) ?></p>
-            </div>
-            <div class="form-group">
-                <label>Address:</label>
-                <p><?= htmlspecialchars($row['address']) ?></p>
-            </div>
-            <div class="form-group">
-                <label>Country:</label>
-                <p><?= htmlspecialchars($row['country']) ?></p>
-            </div>
-            <div class="form-group">
-                <label>Current Club:</label>
-                <p><?= htmlspecialchars($row['current_club']) ?></p>
-            </div>
-            <div class="form-group">
-                <label>Past Clubs:</label>
-                <p><?= nl2br(htmlspecialchars($row['past_clubs'])) ?></p>
-            </div>
+    <div class="bio-card">
+        <div class="card-header">
+            <h2><?= htmlspecialchars($row['full_name']) ?></h2>
         </div>
-        
-        <div class="bio-image-container">
-            <?php if (!empty($row['image'])): ?>
-                <img src="uploads/<?= htmlspecialchars($row['image']) ?>" class="bio-image" alt="<?= htmlspecialchars($row['full_name']) ?>">
-            <?php endif; ?>
+        <div class="card-body">
+            <div class="bio-image-container">
+                <?php if (!empty($row['image'])): ?>
+                    <img src="uploads/<?= htmlspecialchars($row['image']) ?>" class="bio-image" alt="<?= htmlspecialchars($row['full_name']) ?>">
+                <?php endif; ?>
+            </div>
+            
+            <div class="bio-details">
+                <div class="form-group">
+                    <label>Age:</label>
+                    <p><?= htmlspecialchars($row['age']) ?></p>
+                </div>
+                <div class="form-group">
+                    <label>Country:</label>
+                    <p><?= htmlspecialchars($row['country']) ?></p>
+                </div>
+                <div class="form-group">
+                    <label>Current Club:</label>
+                    <p><?= htmlspecialchars($row['current_club']) ?></p>
+                </div>
+                <div class="form-group">
+                    <label>Past Clubs:</label>
+                    <p><?= nl2br(htmlspecialchars($row['past_clubs'])) ?></p>
+                </div>
+              
+            </div>
         </div>
     </div>
     <?php endwhile; ?>
 </div>
 
+<?php include 'footer.php'; ?>
+
+    <!-- Mobile all part here now so here full code -->
+    <nav class="mobile-nav">
+<a href="football_news_front.php" class="nav-item">
+  <i class="fas fa-newspaper"></i>
+  <span>News</span>
+</a>
+<a href="live.php" class="nav-item">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>Live</span>
+    </a>
+        <div class="mobile-nav-item mobile-center">
+            <a href="index.php" class="home-btn">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+        <a href="event.php" class="nav-item">
+    <i class="fas fa-calendar-alt"></i>
+    <span>Event</span>
+</a>
+<a href="bio.php" class="nav-item">
+  <i class="fas fa-user"></i> <!-- Profile icon -->
+  <span>Player</span>
+</a>
+
+
+<!-- Mobile Top Navbar -->
+<div class="mobile-top-nav">
+    <!-- Left: Logo -->
+    <div class="mobile-logo">
+        <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Logo">
+    </div>
+    <div  class="logo-main">
+      <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
+    </div>
+
+
+    <!-- Right: Hamburger -->
+    <div class="mobile-right">
+        <div class="hamburger" onclick="toggleMobileMenu()">&#9776;</div>
+    </div>
+</div>
+
+<!-- Mobile Sidebar -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+        <h3>Football Action</h3>
+        <div class="close-btn" onclick="toggleMobileMenu()">×</div>
+    </div>
+    <a href="#">FIFA</a>
+    <a href="#">Line-Up</a>
+    <a href="#">Point Table</a>
+    <a href="#">Schedules</a>
+    <a href="#">Players</a>
+    <a href="#">Important News</a>
+    <a href="#">Matches</a>
+    <a href="#">Injury Update</a>
+    <a href="#">Top News</a>
+    <a href="#">Club</a>
+    <a href="football_news_front.php">Transfers</a>
+</div>
+
+<script src="js/scrip.js"></script>
 </body>
 </html>

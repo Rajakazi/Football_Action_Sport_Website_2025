@@ -15,7 +15,6 @@ if (isset($_POST['add_player_bio'])) {
         $image = time() . '_' . basename($_FILES['image']['name']);
         $target_dir = "../uploads/";
         $target_file = $target_dir . $image;
-
         if (!move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
             echo "<p style='color:red'>Error uploading file.</p>";
             exit;
@@ -73,7 +72,7 @@ if (isset($_POST['update_player_bio'])) {
         $target_file = $target_dir . $new_image;
         
         if (move_uploaded_file($_FILES['new_image']['tmp_name'], $target_file)) {
-            if (file_exists($target_dir . $current_image)) {
+            if (!empty($current_image) && file_exists($target_dir . $current_image)) {
                 unlink($target_dir . $current_image);
             }
         } else {
@@ -100,24 +99,24 @@ $player_bios_result = $conn->query("SELECT * FROM player_bios ORDER BY id ASC");
 <head>
     <title>Admin - Player Bios</title>
     <style>
-        body { font-family: Poppins, sans-serif; background: #f4f6f9; padding: 20px; }
-        h2 { color: #0b74de; margin-bottom: 10px; }
+        body { font-family: Poppins, sans-serif; background: #f4f6f9; padding: 20px; color: #333; }
+        h2 { color: #0b74de; margin-bottom: 10px; border-bottom: 2px solid #0b74de; padding-bottom: 5px; }
         form { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); margin-bottom: 20px; }
-        input[type="text"], input[type="number"], textarea, input[type="file"], button { padding: 8px 12px; margin: 5px 0; border-radius: 6px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
-        button { background: #0b74de; color: #fff; cursor: pointer; border: none; }
+        input[type="text"], input[type="number"], textarea, input[type="file"], button { padding: 10px 12px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc; width: 100%; box-sizing: border-box; }
+        button { background: #0b74de; color: #fff; cursor: pointer; border: none; font-weight: 600; transition: background 0.3s ease; }
         button:hover { background: #094a99; }
-        .bio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
-        .bio-card { background: #fff; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); text-align: center; }
-        .bio-card img { max-width: 100%; height: auto; border-radius: 6px; margin-bottom: 10px; }
+        .bio-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .bio-card { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); text-align: center; }
+        .bio-card img { width: 100px; height: 130px; object-fit: cover; border-radius: 6px; border: 2px solid #0b74de; margin-bottom: 10px; }
         .bio-card p { margin: 5px 0; color: #555; }
-        .bio-card .player-name { font-weight: bold; color: #0b74de; }
+        .bio-card .player-name { font-weight: bold; color: #0b74de; font-size: 1.2em; }
         .bio-actions { display: flex; justify-content: space-around; margin-top: 10px; }
-        .bio-actions button, .bio-actions a { width: 45%; }
-        .delete-btn { background: #dc3545; color: white; text-decoration: none; padding: 8px 12px; border-radius: 6px; }
+        .bio-actions button, .bio-actions a { padding: 8px 12px; border-radius: 6px; text-decoration: none; font-weight: 500; }
+        .delete-btn { background: #dc3545; color: white; border: none; }
         .delete-btn:hover { background: #c82333; }
-        .edit-btn { background: #ffc107; color: #333; }
+        .edit-btn { background: #ffc107; color: #333; border: none; }
         .edit-btn:hover { background: #e0a800; }
-        #edit-form-container { display: none; margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px; }
+        #edit-form-container { display: none; margin-top: 20px; border-top: 2px solid #ccc; padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -188,6 +187,6 @@ $player_bios_result = $conn->query("SELECT * FROM player_bios ORDER BY id ASC");
         document.getElementById('edit-current-image').value = image;
     }
 </script>
-<a href="dashboard.php">Home</a>
+
 </body>
 </html>

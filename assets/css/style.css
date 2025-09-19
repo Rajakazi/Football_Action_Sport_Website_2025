@@ -611,7 +611,8 @@ nav a:hover::after {
   max-height: 450px; /* max height for slider */
   overflow: hidden;
   border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  background: repeating-linear-gradient(rgba(26, 0, 0, 0.1));
+  box-shadow: 0 6px 20px rgba(114, 15, 15, 0.1);
 }
 
 /* Slider Wrapper */
@@ -835,8 +836,8 @@ nav a:hover::after {
 }
 
 .top-images img {
-  width: auto; /* each image takes ~half width */
-  height: 320px; /* fixed height, adjust as needed */ /* crops without stretching */
+  width: 100%; /* each image takes ~half width */
+  height: auto; /* fixed height, adjust as needed */ /* crops without stretching */
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.3s, box-shadow 0.3s;
@@ -1332,13 +1333,12 @@ button:hover {
   .mobile-nav {
     display: flex !important;
     position: fixed;
-    bottom: 0; /* stick to bottom */
+    bottom: 0px; /* stick to bottom */
     left: 0;
     width: 100%; /* full width */
     height: 70px;
-    background-color: #420b04;
+    background: rgb(58, 1, 1);
     border-radius: 10px; /* full-width, no curve on sides */
-    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
     justify-content: space-around;
     align-items: center;
     padding: 0 5px;
@@ -1376,7 +1376,7 @@ button:hover {
     flex-direction: column;
     align-items: center;
     text-decoration: none;
-    color: #a0a0a0;
+    color: hsl(0, 0%, 100%);
     font-size: 12px;
     transition: color 0.3s;
     flex: 1; /* distribute evenly across full width */
@@ -1390,7 +1390,7 @@ button:hover {
   /* Hover/focus effect */
   .nav-item:hover,
   .nav-item:focus {
-    color: #fff;
+    color: #75ff04;
   }
 }
 /* --- Default: Navbar visible on desktop/laptop --- */
@@ -1502,18 +1502,7 @@ button:hover {
     background-color: #4ba111;
     color: #fff;
   }
-
-  .close-btn {
-    font-size: 20px;
-    margin-bottom: 10px;
-    transition: transform 0.5s ease;
-  }
-
-  .close-btn:hover {
-    transform: scale(2.1);
-  }
 }
-
 /* Live matches css part */
 /* Match Card Container */
 .match-card {

@@ -26,6 +26,7 @@ include '../config.php';
 <a href="admin_club_ranking.php">add club ranking</a>
 <a href="admin_lineup.php">National Line-Up</a>
 <a href="admin_bio.php">add player bio</a>
+<a href="add_fixture.php">add fixture</a>
 
 
 

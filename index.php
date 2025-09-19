@@ -137,7 +137,7 @@ if (isset($_POST['subscribe'])) {
   <div class="dropdown">
     <a href="#">Schedules</a>
     <div class="dropdown-content">
-      <a href="#">National XI</a>
+      <a href="fixture.php">Fixture</a>
       <a href="#">English-PL</a>
       <a href="#">La-Liga</a>
   </div>
@@ -219,33 +219,6 @@ if (isset($_POST['subscribe'])) {
     <div class="dots" id="dotsContainer"></div>
 </div>
 
-<div class="adv-section">
-    <!-- Title with lines -->
-    <div class="adv-title">
-        <span>Advertisement Here</span>
-    </div>
-
-    <!-- Advertisement Slider -->
-    <div class="adv-slider-container">
-        <div class="adv-slider-wrapper" id="advSlider">
-            <?php while($row = $adv_result->fetch_assoc()): ?>
-            <div class="adv-slide">
-                <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="Advertisement">
-            </div>
-            <?php endwhile; ?>
-        </div>
-    </div>
-</div>
-   <!-- like adv-slider-container -->
-<div class="adv-slider-container">
-    <div class="adv-slider-wrapper" id="advSlider">
-        <?php while($row = $adv_result->fetch_assoc()): ?>
-        <div class="adv-slide">
-            <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="Advertisement">
-        </div>
-        <?php endwhile; ?>
-    </div>
-</div>
 <div class="latest-news-box">
     <div class="latest-news-title">
         <span>Latest News</span>
@@ -285,12 +258,15 @@ if (isset($_POST['subscribe'])) {
   <?php endwhile; ?>
 </div>
 
-
+<br>
   <div class="adv-title">
         <span>Primer League Point Table</span>
+      
     </div>
+    <br>
     <div class="top-images">
   <?php 
+
     // Fetch all points images
     $points_result = $conn->query("SELECT * FROM uploads WHERE type='points' ORDER BY id DESC");
     while($row = $points_result->fetch_assoc()): 
@@ -367,7 +343,7 @@ if (isset($_POST['subscribe'])) {
     <i class="fas fa-calendar-alt"></i>
     <span>Event</span>
 </a>
-<a href="draw.php" class="nav-item">
+<a href="bio.php" class="nav-item">
   <i class="fas fa-user"></i> <!-- Profile icon -->
   <span>Player</span>
 </a>
@@ -394,7 +370,6 @@ if (isset($_POST['subscribe'])) {
 <div class="mobile-sidebar" id="mobileSidebar">
     <div class="sidebar-header">
         <h3>Football Action</h3>
-        <div class="close-btn" onclick="toggleMobileMenu()">×</div>
     </div>
     <a href="#">FIFA</a>
     <a href="#">Line-Up</a>

@@ -150,11 +150,10 @@ $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIM
     <i class="fas fa-history"></i>
     <span>History</span>
 </a>
-
-<a href="#" class="nav-item">
-<i class="fa-solid fa-circle-info"></i>
-        <span>About</span>
-    </a>
+<a href="fifa_rankiing.php" class="nav-item">
+<i class="fa-solid fa-ranking-star"></i>
+    <span>Ranks</span>
+</a>
         <div class="mobile-nav-item mobile-center">
             <a href="index.php" class="home-btn">
                 <i class="fas fa-home"></i>
@@ -164,10 +163,10 @@ $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIM
         <i class="fa-solid fa-child"></i>
     <span>Youth</span>
 </a>
-<a href="contact.php" class="nav-item">
-    <i class="fas fa-user"></i>
-    <span>Profile</span>
-</a>
+<a href="#" class="nav-item">
+<i class="fa-solid fa-circle-info"></i>
+        <span>About</span>
+    </a>
 
 <!-- Mobile Top Navbar -->
 <div class="mobile-top-nav">

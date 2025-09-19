@@ -6,33 +6,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
 /* Reset & Base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-}
 
-body {
-    background: #f4f6f9;
-    color: #333;
-    line-height: 1.6;
-}
-
-a { text-decoration: none; }
-
-/* Header */
-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px 50px;
-    background: linear-gradient(135deg, #0b74de, #074a99);
-    color: #fff;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
 
 header img {
     height: 50px;
@@ -52,16 +26,8 @@ header nav a:hover {
     color: #ffdd57;
 }
 
-/* Container */
-.container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
 /* News Detail Card */
 .news-detail {
-    background: #fff;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.1);
@@ -69,14 +35,10 @@ header nav a:hover {
     transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.news-detail:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 30px rgba(0,0,0,0.2);
-}
 
 .news-detail h2 {
     font-size: 2rem;
-    color: #0b74de;
+    color:rgb(12, 255, 4);
     margin-bottom: 20px;
 }
 
@@ -91,21 +53,21 @@ header nav a:hover {
 
 .news-detail p {
     font-size: 1rem;
-    color: #555;
+    color: white;
     margin-bottom: 20px;
     text-align: justify;
 }
 
 .news-detail small {
     display: block;
-    color: #777;
+    color: yellow;
     margin-bottom: 25px;
 }
 
 /* Share Buttons */
 .share h3 {
     margin-bottom: 10px;
-    color: #0b74de;
+    color:rgb(4, 255, 25);
 }
 
 .share a {
@@ -138,21 +100,16 @@ header nav a:hover {
 }
 
 @media (max-width: 480px) {
-    header { padding: 12px 20px; }
-    .news-detail { padding: 20px; }
+    header { padding: 2px 10px; }
+    .news-detail { padding: 10px; }
     .news-detail h2 { font-size: 1.4rem; }
     .share a { padding: 6px 10px; font-size: 13px; }
 }
 
     </style>
+    <?php include 'header.php'; ?>
 </head>
 <body>
-<header>
-    <img src="assets/images/logo.png" alt="Football Action">
-    <nav>
-        <a href="index.php">Home</a>
-    </nav>
-</header>
 
 <div class="container">
     <?php
@@ -175,54 +132,72 @@ header nav a:hover {
               </div>";
     }
     ?>
+
 </div>
 
-<footer class="footer">
-    <div class="footer-container">
 
-      <!-- Logo -->
-<div class="footer-logo">
-    <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Logo">
-    <p>Your Website Tagline Here</p>
+        <!-- Mobile all part here now so here full code -->
+        <nav class="mobile-nav">
+<a href="football_news_front.php" class="nav-item">
+  <i class="fas fa-newspaper"></i>
+  <span>News</span>
+</a>
+<a href="live.php" class="nav-item">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>Live</span>
+    </a>
+        <div class="mobile-nav-item mobile-center">
+            <a href="index.php" class="home-btn">
+                <i class="fas fa-home"></i>
+            </a>
+        </div>
+        <a href="event.php" class="nav-item">
+    <i class="fas fa-calendar-alt"></i>
+    <span>Event</span>
+</a>
+<a href="draw.php" class="nav-item">
+  <i class="fas fa-user"></i> <!-- Profile icon -->
+  <span>Contact</span>
+</a>
+
+
+<!-- Mobile Top Navbar -->
+<div class="mobile-top-nav">
+    <!-- Left: Logo -->
+    <div class="mobile-logo">
+        <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Logo">
+    </div>
+    <div  class="logo-main">
+      <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
+    </div>
+
+
+    <!-- Right: Hamburger -->
+    <div class="mobile-right">
+        <div class="hamburger" onclick="toggleMobileMenu()">&#9776;</div>
+    </div>
 </div>
-        <!-- Navigation -->
-        <div class="footer-nav">
-            <h3>Quick Links</h3>
-            <ul>
-                <li><a href="index.php">Home</a></li>
-                <li><a href="about.php">About</a></li>
-                <li><a href="contact.php">Contact</a></li>
-                <li><a href="services.php">Services</a></li>
-            </ul>
-        </div>
 
-        <!-- Social Media -->
-        <div class="footer-social">
-            <h3>Follow Us</h3>
-            <div class="social-icons">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
-            </div>
-        </div>
-
-        <!-- Newsletter -->
-        <div class="footer-newsletter">
-            <h3>Subscribe</h3>
-            <form method="post">
-                <input type="email" name="email" placeholder="Enter your email" required>
-                <button type="submit" name="subscribe">Subscribe</button>
-            </form>
-            <?php if (!empty($message)): ?>
-                <p class="msg"><?= htmlspecialchars($message) ?></p>
-            <?php endif; ?>
-        </div>
+<!-- Mobile Sidebar -->
+<div class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+        <h3>Football Action</h3>
+        <div class="close-btn" onclick="toggleMobileMenu()">×</div>
     </div>
+    <a href="#">FIFA</a>
+    <a href="#">Line-Up</a>
+    <a href="#">Point Table</a>
+    <a href="#">Schedules</a>
+    <a href="#">Players</a>
+    <a href="#">Important News</a>
+    <a href="#">Matches</a>
+    <a href="#">Injury Update</a>
+    <a href="#">Top News</a>
+    <a href="#">Club</a>
+    <a href="football_news_front.php">Transfers</a>
+</div>
 
-    <div class="footer-bottom">
-        <p>&copy; <?= date("Y") ?> Football Action. All rights reserved.</p>
-    </div>
-</footer>
+<script src="js/scrip.js"></script>
+
 </body>
 </html>
