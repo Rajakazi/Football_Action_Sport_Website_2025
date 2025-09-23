@@ -27,6 +27,10 @@ include '../config.php';
 <a href="admin_lineup.php">National Line-Up</a>
 <a href="admin_bio.php">add player bio</a>
 <a href="add_fixture.php">add fixture</a>
+<a href="accept.php">accept</a>
+<a href="topclassnews.php">class newsadd</a>
+<a href="destop.news_show.php">destops news show</a>
+
 
 
 

@@ -8,111 +8,7 @@ $player_bios = $conn->query("SELECT * FROM player_bios ORDER BY id ASC");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Bios</title>
-    <style>
-        
-        /* Player Card Styling */
-        .bio-card {
-            background-color: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .bio-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Card Header */
-        .card-header {
-            background: linear-gradient(135deg, #0b74de, #074a99);
-            color: #fff;
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-            position: relative;
-        }
-        .card-header h2 {
-            margin: 0;
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-        .card-header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 50px;
-            height: 4px;
-            background-color: #ffdd57;
-            border-radius: 2px;
-        }
-
-        /* Card Body & Details */
-        .card-body {
-            padding: 30px;
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-        .bio-image-container {
-            flex-shrink: 0;
-            text-align: center;
-        }
-        .bio-image {
-            width: 150px;
-            height: 200px;
-            object-fit: cover;
-            border: 4px solid #0b74de;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .bio-details {
-            flex-grow: 1;
-        }
-        .bio-details .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        .bio-details .form-group label {
-            font-weight: 600;
-            color: #074a99;
-            flex: 0 0 120px; /* Consistent width for labels */
-        }
-        .bio-details .form-group p {
-            margin: 0;
-            margin-top: 15px;
-            color: #555;
-            flex-grow: 10;
-            line-height: 1.5;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 767px) {
-            .container {
-                grid-template-columns: 1fr; /* Stack into a single column on small screens */
-            }
-            .card-body {
-                flex-direction: column;
-                align-items: center;
-            }
-            .bio-image-container {
-                margin-bottom: 25px;
-            }
-            .bio-details .form-group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .bio-details .form-group label {
-                margin-bottom: 5px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
 
@@ -155,8 +51,6 @@ $player_bios = $conn->query("SELECT * FROM player_bios ORDER BY id ASC");
     <?php endwhile; ?>
 </div>
 
-<?php include 'footer.php'; ?>
-
     <!-- Mobile all part here now so here full code -->
     <nav class="mobile-nav">
 <a href="football_news_front.php" class="nav-item">
@@ -180,8 +74,6 @@ $player_bios = $conn->query("SELECT * FROM player_bios ORDER BY id ASC");
   <i class="fas fa-user"></i> <!-- Profile icon -->
   <span>Player</span>
 </a>
-
-
 <!-- Mobile Top Navbar -->
 <div class="mobile-top-nav">
     <!-- Left: Logo -->
@@ -191,7 +83,6 @@ $player_bios = $conn->query("SELECT * FROM player_bios ORDER BY id ASC");
     <div  class="logo-main">
       <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
     </div>
-
 
     <!-- Right: Hamburger -->
     <div class="mobile-right">

@@ -11,14 +11,7 @@ $fixtures = $conn->query("SELECT * FROM fixtures ORDER BY created_at DESC");
     <style>
         /* General Styles */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            line-height: 1.6;
-            color: #333;
-        }
+       
 
         /* Header (Placeholder for your site's header) */
         header {
@@ -86,13 +79,6 @@ $fixtures = $conn->query("SELECT * FROM fixtures ORDER BY created_at DESC");
     </style>
 </head>
 <body>
-
-<header>
-    <div class="header">
-        <h1>Football Fixtures</h1>
-    </div>
-</header>
-
 <div class="container">
     <?php if ($fixtures->num_rows > 0): ?>
         <?php while($row = $fixtures->fetch_assoc()): ?>

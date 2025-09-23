@@ -166,12 +166,72 @@ $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIM
 
   </div>
   </div>
-  <br><br>
-     <!-- Title with lines -->
-     <div class="adv-title">
-        <span>Live Streeming</span>
+  <!-- ==================== MOBILE ONLY SLIDER ==================== -->
+<div class="mobile-slider">
+    <div class="mobile-slider-wrapper" id="mobileSliderWrapper">
+
+        <div class="mobile-slide">
+            <img src="img/img/imag/Blue Photo Collage Travel Facebook Cover.png" alt="Slide 1">
+            <div class="mobile-overlay"></div>
+        </div>
+        <!-- Add more slides as needed -->
     </div>
-    <br>
+</div>
+
+<style>
+/* ===== Mobile Slider Only ===== */
+.mobile-slider {
+    display: none; /* hidden by default */
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 100%;
+    z-index: 1;
+}
+
+.mobile-slider-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.mobile-slide {
+    min-width: 100%;
+    position: relative;
+    height: auto;
+}
+
+.mobile-slide img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+}
+
+.mobile-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Show only on mobile */
+@media screen and (max-width: 768px) {
+    .mobile-slider { display: block; }
+}
+</style>
+
+<br>
+  <div class="mobile-line-row-center">
+  <div class="line-top-text-center">Football Live Here</div>
+  <div class="mobile-line-center"></div>
+</div>
+
 <?php if($res && $res->num_rows > 0): ?>
     <?php while($row = $res->fetch_assoc()): ?>
         <?php 
@@ -183,7 +243,6 @@ $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIM
             <?= htmlspecialchars($row['match_name']) ?>
           </div>
           <div class="match-center">
-            <?= htmlspecialchars($row['match_type']) ?> | 
             <?php if($status=="UPCOMING"): ?>
               <span class="countdown" data-time="<?= $row['match_time'] ?>"></span>
             <?php endif; ?>
@@ -191,9 +250,9 @@ $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIM
           </div>
           <div class="match-right">
             <?php if(is_array($links) && count($links) > 1): ?>
-              <div class="dropdown">
-                <button class="dropdown-btn">Watch</button>
-                <div class="dropdown-content">
+              <div class="dropdown-main">
+                <button class="dropdown-main-btn">Watch</button>
+                <div class="dropdown-main-content">
                   <?php foreach($links as $link): ?>
                     <button onclick="showLive('<?= $link ?>')">Link</button>
                   <?php endforeach; ?>
@@ -209,63 +268,64 @@ $news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIM
     <p>No matches available.</p>
 <?php endif; ?>
 
-<iframe id="liveFrame" src="" style="display:none;"></iframe>
-
 <script>
-function showLive(link){
+  function showLive(link){
     const iframe = document.getElementById('liveFrame');
     iframe.src = link;
     iframe.style.display = 'block';
     iframe.scrollIntoView({behavior:'smooth'});
 }
 
-function countdown(){
-    const elements = document.querySelectorAll('.countdown');
+function updateMatches(){
     const now = new Date().getTime();
-    elements.forEach(el=>{
-        const matchTime = new Date(el.dataset.time).getTime();
-        const distance = matchTime - now;
+    document.querySelectorAll('.match-card').forEach(card=>{
+        const countdownEl = card.querySelector('.countdown');
+        const statusEl = card.querySelector('.status');
+        if(!statusEl) return;
 
-        if(distance > 0){
-            const days = Math.floor(distance / (1000*60*60*24));
-            const hours = Math.floor((distance % (1000*60*60*24))/(1000*60*60));
-            const minutes = Math.floor((distance % (1000*60*60))/(1000*60));
-            const seconds = Math.floor((distance % (1000*60))/1000);
-            el.innerText = days+'d '+hours+'h '+minutes+'m '+seconds+'s';
-        } else {
-            el.innerText = "LIVE";
-            el.classList.remove('UPCOMING');
-            el.classList.add('LIVE');
+        const matchTime = countdownEl ? new Date(countdownEl.dataset.time).getTime() : 0;
+        const matchEndTime = countdownEl ? matchTime + 2*60*60*1000 : 0; // 2 hours live duration
+
+        if(countdownEl){
+            const distance = matchTime - now;
+
+            if(distance > 0){
+                // Upcoming
+                const days = Math.floor(distance / (1000*60*60*24));
+                const hours = Math.floor((distance % (1000*60*60*24))/(1000*60*60));
+                const minutes = Math.floor((distance % (1000*60*60))/(1000*60));
+                const seconds = Math.floor((distance % (1000*60))/1000);
+                countdownEl.innerText = days+'d '+hours+'h '+minutes+'m '+seconds+'s';
+                statusEl.classList.remove('LIVE','END');
+                statusEl.classList.add('UPCOMING');
+                statusEl.innerText = "UPCOMING";
+            } else if(now >= matchTime && now < matchEndTime){
+                // LIVE
+                countdownEl.style.display = 'none';
+                statusEl.classList.remove('UPCOMING','END');
+                statusEl.classList.add('LIVE','animating');
+                statusEl.innerText = "LIVE";
+            } else {
+                // END
+                countdownEl.style.display = 'none';
+                statusEl.classList.remove('UPCOMING','LIVE','animating');
+                statusEl.classList.add('END');
+                statusEl.innerText = "END";
+            }
         }
+
+        // Show card after JS processed
+        card.classList.add('ready');
     });
 }
 
-setInterval(countdown, 1000);
-countdown();
+// Run every second
+setInterval(updateMatches,1000);
+updateMatches();
 
-
-// Add this to your existing JavaScript file or in a new script tag
-
-function startLiveAnimation() {
-    // Find all elements with the 'status LIVE' classes
-    const liveElements = document.querySelectorAll('.status.LIVE');
-    
-    // Check if any live elements were found
-    if (liveElements.length > 0) {
-        // Iterate through each live element
-        liveElements.forEach(element => {
-            // Apply a class that triggers the CSS animation
-            // The class 'animating' is a good practice to separate concerns
-            element.classList.add('animating');
-        });
-    }
-}
-
-// Call the function when the page loads
-document.addEventListener('DOMContentLoaded', startLiveAnimation);
 </script>
 
-
+<iframe id="liveFrame" src="" style="display:none;"></iframe>
 <footer class="footer">
     <div class="footer-container">
 

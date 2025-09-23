@@ -194,7 +194,7 @@ $news = $conn->query("SELECT * FROM news ORDER BY id DESC LIMIT 5");
 
         <!-- Mobile all part here now so here full code -->
         <nav class="mobile-nav">
-        <a href="news.php" class="nav-item">
+        <a href="fixture.php" class="nav-item">
         <i class="fas fa-calendar-alt"></i>
   <span>Fixture</span>
 </a>
@@ -252,7 +252,6 @@ $news = $conn->query("SELECT * FROM news ORDER BY id DESC LIMIT 5");
     <a href="#">Club</a>
     <a href="#">Transfers</a>
 </div>
-
 <script src="js/scrip.js"></script>
 </body>
 </html>

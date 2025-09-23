@@ -58,4 +58,48 @@ function toggleMobileMenu() {
     const sidebar = document.getElementById("mobileSidebar");
     sidebar.classList.toggle("open");
   }
-  
+  // Show search bar when ready
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('searchBar').style.display = 'block';
+});
+
+
+  const mobileWrapper = document.getElementById("mobileSliderWrapper");
+let mobileIndex = 0;
+
+function slideMobile() {
+  mobileIndex = (mobileIndex + 1) % slides;
+  mobileWrapper.style.transform = `translateX(-${mobileIndex * 100}%)`;
+}
+setInterval(slideMobile, 3000);
+document.querySelectorAll('.match-card').forEach(card=>{
+  card.classList.add('ready'); // card visible after JS processed
+});
+
+function openModal(img) {
+  const modal = document.getElementById("imgModal");
+  const modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex"; // flex makes centering work
+  modalImg.src = img.src;
+}
+function closeModal() {
+  document.getElementById("imgModal").style.display = "none";
+}
+
+document.querySelectorAll('.read-more').forEach(link=>{
+    link.addEventListener('click', function(e){
+        e.preventDefault();
+        let newsId = this.dataset.id;
+        fetch('increment_views.php?id='+newsId)
+            .then(r=>r.json())
+            .then(data=>{
+                // Update views instantly on index page
+                let desktopView = document.getElementById('views-'+newsId);
+                let mobileView = document.getElementById('views-mobile-'+newsId);
+                if(desktopView) desktopView.innerText = data.views;
+                if(mobileView) mobileView.innerText = data.views;
+                // Redirect to news.php after update
+                window.location.href = this.href;
+            });
+    });
+});

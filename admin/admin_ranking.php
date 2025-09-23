@@ -1,150 +1,96 @@
 <?php
-// admin_ranking.php
-session_start();
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+require_once "../config.php";
 
-require_once __DIR__ . '/../config.php'; // DB connection
+$msg = "";
 
-$errors = [];
-$message = "";
+// Add new ranking
+if(isset($_POST['add'])){
+    $ranking = isset($_POST['rank']) ? intval($_POST['rank']) : 0;
+    $country_name = $_POST['country_name'] ?? '';
+    $points = $_POST['points'] ?? 0;
+    $matches_played = $_POST['matches_played'] ?? 0;
+    $wins = $_POST['wins'] ?? 0;
+    $draws = $_POST['draws'] ?? 0;
+    $losses = $_POST['losses'] ?? 0;
 
-// upload directory: one level up from admin/ (../uploads/)
-$uploadDir = __DIR__ . '/../uploads/';
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0755, true);
-}
+    // Handle flag upload
+    $flag = $_FILES['country_flag']['name'];
+    $tmp_name = $_FILES['country_flag']['tmp_name'];
+    move_uploaded_file($tmp_name, "../uploads/".$flag);
 
-if (isset($_POST['submit'])) {
-    $title = trim($_POST['title'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $category = trim($_POST['category'] ?? '');
+    $sql = "INSERT INTO fifa_ranking (ranking, country_name, country_flag, points, matches_played, wins, draws, losses, last_update)
+            VALUES ('$ranking', '$country_name', '$flag', '$points', '$matches_played', '$wins', '$draws', '$losses', NOW())";
 
-    if ($title === '' || $category === '') {
-        $errors[] = "Title and Category are required.";
-    }
-
-    $imageName = null;
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $tmp = $_FILES['image']['tmp_name'];
-        $orig = $_FILES['image']['name'];
-        $ext  = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
-        $allowed = ['jpg','jpeg','png','gif','webp'];
-
-        if (!in_array($ext, $allowed, true)) {
-            $errors[] = "Invalid image type. Allowed: jpg, jpeg, png, gif, webp.";
-        } else {
-            $imageName = uniqid('img_', true) . '.' . $ext;
-            $target = $uploadDir . $imageName;
-
-            if (!move_uploaded_file($tmp, $target)) {
-                $errors[] = "Failed to move uploaded file.";
-            }
-        }
+    if($conn->query($sql)){
+        $msg = "Ranking added successfully!";
     } else {
-        $errors[] = "Please select an image.";
-    }
-
-    if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO ranking (title, description, image, category, created_at) VALUES (?, ?, ?, ?, NOW())");
-        $stmt->bind_param("ssss", $title, $description, $imageName, $category);
-        if ($stmt->execute()) {
-            $message = "Ranking uploaded successfully.";
-        } else {
-            $errors[] = "DB error: " . $stmt->error;
-        }
-        $stmt->close();
+        $msg = "Error: ".$conn->error;
     }
 }
 
-// delete
-if (isset($_GET['delete'])) {
-    $id = (int) $_GET['delete'];
-    $stmt = $conn->prepare("SELECT image FROM ranking WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $stmt->bind_result($img);
-    if ($stmt->fetch()) {
-        $stmt->close();
-        if ($img && file_exists($uploadDir . $img)) {
-            unlink($uploadDir . $img);
-        }
-        $del = $conn->prepare("DELETE FROM ranking WHERE id=?");
-        $del->bind_param("i", $id);
-        $del->execute();
-        $del->close();
-        header("Location: admin_ranking.php?deleted=1");
-        exit;
-    }
+// Delete ranking
+if(isset($_GET['delete'])){
+    $id = $_GET['delete'];
+    $conn->query("DELETE FROM fifa_ranking WHERE id=$id");
 }
 
-$res = $conn->query("SELECT * FROM ranking ORDER BY created_at DESC");
+$rankings = $conn->query("SELECT * FROM fifa_ranking ORDER BY ranking ASC");
+
 ?>
-<!doctype html>
-<html lang="en">
+
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8">
-<title>Admin Ranking</title>
-<style>
-body{font-family:Arial;background:#f2f5f8;padding:20px;}
-.container{max-width:900px;margin:auto;}
-form{background:#fff;padding:15px;border-radius:8px;margin-bottom:20px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:6px;}
-button{padding:10px 15px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;}
-img.thumb{max-width:120px;border-radius:6px;}
-table{width:100%;border-collapse:collapse;background:#fff;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
-th,td{padding:10px;border-bottom:1px solid #eee;}
-.notice{padding:10px;margin:10px 0;border-radius:6px;}
-.notice.error{background:#ffe0e0;color:#900;}
-.notice.success{background:#e0ffe6;color:#060;}
-</style>
+    <title>FIFA Rankings Admin</title>
+    <style>
+        body{font-family:sans-serif; padding:20px;}
+        table{width:100%; border-collapse:collapse;}
+        th, td{border:1px solid #ddd; padding:8px; text-align:center;}
+        th{background:#222; color:#fff;}
+        form{margin-bottom:20px;}
+        input, button{padding:5px; margin:5px;}
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>Upload Ranking</h1>
+<h2>FIFA Rankings Admin Panel</h2>
+<p style="color:green;"><?php echo $msg; ?></p>
 
-    <?php if($errors): ?>
-        <div class="notice error"><ul><?php foreach($errors as $e) echo "<li>$e</li>"; ?></ul></div>
-    <?php endif; ?>
-    <?php if($message): ?>
-        <div class="notice success"><?= $message ?></div>
-    <?php endif; ?>
+<form method="post" enctype="multipart/form-data">
+    Rank: <input type="number" name="rank" required>
+    Country Name: <input type="text" name="country_name" required>
+    Flag: <input type="file" name="country_flag" required>
+    Points: <input type="number" name="points" required>
+    Matches: <input type="number" name="matches_played" required>
+    Wins: <input type="number" name="wins" required>
+    Draws: <input type="number" name="draws" required>
+    Losses: <input type="number" name="losses" required>
+    <button type="submit" name="add">Add</button>
+</form>
 
-    <form method="post" enctype="multipart/form-data">
-        <label>Title *</label>
-        <input type="text" name="title" required>
-        <label>Description</label>
-        <textarea name="description"></textarea>
-        <label>Category *</label>
-        <select name="category" required>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="asia_male">Asia Male</option>
-            <option value="asia_female">Asia Female</option>
-            <option value="south_america">South America</option>
-            <option value="other">Other</option>
-        </select>
-        <label>Image *</label>
-        <input type="file" name="image" accept="image/*" required>
-        <button type="submit" name="submit">Upload</button>
-    </form>
-
-    <h2>Existing Rankings</h2>
-    <table>
-        <tr><th>ID</th><th>Title</th><th>Category</th><th>Image</th><th>Created</th><th>Action</th></tr>
-        <?php if($res && $res->num_rows>0): while($r=$res->fetch_assoc()): ?>
-        <tr>
-            <td><?= $r['id'] ?></td>
-            <td><?= htmlspecialchars($r['title']) ?></td>
-            <td><?= htmlspecialchars($r['category']) ?></td>
-            <td><?php if($r['image']): ?><img class="thumb" src="../uploads/<?= htmlspecialchars($r['image']) ?>"><?php endif; ?></td>
-            <td><?= $r['created_at'] ?></td>
-            <td><a href="?delete=<?= $r['id'] ?>" onclick="return confirm('Delete this ranking?')">Delete</a></td>
-        </tr>
-        <?php endwhile; else: ?>
-        <tr><td colspan="6">No records found</td></tr>
-        <?php endif; ?>
-    </table>
-</div>
+<table>
+    <tr>
+        <th>Rank</th>
+        <th>Country</th>
+        <th>Flag</th>
+        <th>MP</th>
+        <th>W</th>
+        <th>D</th>
+        <th>L</th>
+        <th>Action</th>
+    </tr>
+    <?php while($row = $rankings->fetch_assoc()): ?>
+    <tr>
+    <td><?php echo $row['ranking']; ?></td>
+        <td><?php echo $row['country_name']; ?></td>
+        <td><img src="../uploads/<?php echo $row['country_flag']; ?>" width="40"></td>
+        <td><?php echo $row['points']; ?></td>
+        <td><?php echo $row['matches_played']; ?></td>
+        <td><?php echo $row['wins']; ?></td>
+        <td><?php echo $row['draws']; ?></td>
+        <td><?php echo $row['losses']; ?></td>
+        <td><a href="?delete=<?php echo $row['id']; ?>">Delete</a></td>
+    </tr>
+    <?php endwhile; ?>
+</table>
 </body>
 </html>

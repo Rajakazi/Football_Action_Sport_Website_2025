@@ -1,46 +1,65 @@
 <?php
 require_once "config.php";
-$news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
-$slider_result = $conn->query("SELECT * FROM slider ORDER BY id DESC");
-$adv_result = $conn->query("SELECT * FROM adv_slider ORDER BY id DESC");
-$mysqli = new mysqli("localhost", "root", "Milan@1234", "football_action");
-$points = $mysqli->query("SELECT * FROM uploads WHERE type='points' ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
-$fixture = $mysqli->query("SELECT * FROM uploads WHERE type='fixture' ORDER BY created_at DESC LIMIT 1")->fetch_assoc();
+$result = $conn->query("SELECT * FROM top_news_lets ORDER BY created_at DESC");
+if($result->num_rows == 0) {
+    echo "No news found!";
+}
+$result = $conn->query("SELECT * FROM football_news ORDER BY created_at DESC");
+$news = [];
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $news[] = $row;
+    }
+}
+// Load messages from DB
+$stmt = $conn->prepare("SELECT accept_message, reject_message FROM consent_settings ORDER BY id DESC LIMIT 1");
+$stmt->execute();
+$stmt->bind_result($accept_message, $reject_message);
+$stmt->fetch();
+$stmt->close();
 
-// detect DB variable
-$db = isset($conn) ? $conn : (isset($mysqli) ? $mysqli : null);
-if (!$db) die("DB connection missing.");
+$consent = isset($_COOKIE['site_consent']) ? $_COOKIE['site_consent'] : null;
+$message = "";
 
-// get search keyword if any
-$keyword = trim($_GET['search'] ?? '');
-
-// base query
-$sql = "SELECT id, title, summary, image, created_at FROM news";
-
-// if keyword provided, add WHERE condition
-if ($keyword !== '') {
-    $safe = $db->real_escape_string($keyword);
-    $sql .= " WHERE title LIKE '%$safe%' OR summary LIKE '%$safe%' OR content LIKE '%$safe%'";
+if ($consent === "accepted") {
+    $message = $accept_message;
+} elseif ($consent === "rejected") {
+    $message = $reject_message;
 }
 
+// Fetch top news for ticker
+$news_result = $conn->query("SELECT * FROM top_news ORDER BY created_at DESC LIMIT 10");
+
+// Fetch sliders
+$slider_result = $conn->query("SELECT * FROM slider ORDER BY id DESC");
+$adv_result = $conn->query("SELECT * FROM adv_slider ORDER BY id DESC");
+
+// Fetch news for main section
+$keyword = trim($_GET['search'] ?? '');
+$sql = "SELECT id, headline, summary, images, created_at FROM news";
+if ($keyword !== '') {
+    $safe = $conn->real_escape_string($keyword);
+    $sql .= " WHERE headline LIKE '%$safe%' OR summary LIKE '%$safe%' OR content LIKE '%$safe%'";
+}
 $sql .= " ORDER BY created_at DESC";
-$result = $db->query($sql);
+$result = $conn->query($sql);
 
-// Handle Newsletter Subscription
+// Fetch latest points & fixture images
+$points_result = $conn->query("SELECT * FROM uploads WHERE type='points' ORDER BY created_at DESC");
+$fixture_result = $conn->query("SELECT * FROM uploads WHERE type='fixture' ORDER BY created_at DESC");
+$laliga_result = $conn->query("SELECT * FROM uploads WHERE type='laliga' ORDER BY created_at DESC");
+
+// Newsletter subscription
+$message = '';
 if (isset($_POST['subscribe'])) {
-  $email = trim($_POST['email'] ?? '');
-
-  if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $stmt = $conn->prepare("INSERT INTO newsletter (email) VALUES (?)");
-      $stmt->bind_param("s", $email);
-      if ($stmt->execute()) {
-          $message = "✅ Thank you for subscribing!";
-      } else {
-          $message = "❌ Something went wrong!";
-      }
-  } else {
-      $message = "⚠️ Please enter a valid email.";
-  }
+    $email = trim($_POST['email'] ?? '');
+    if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $stmt = $conn->prepare("INSERT INTO newsletter (email) VALUES (?)");
+        $stmt->bind_param("s", $email);
+        $message = $stmt->execute() ? "✅ Thank you for subscribing!" : "❌ Something went wrong!";
+    } else {
+        $message = "⚠️ Please enter a valid email.";
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -73,7 +92,6 @@ if (isset($_POST['subscribe'])) {
       <form method="get" class="search-bar">
         <input type="text" name="search" placeholder="Search news..." value="<?=htmlspecialchars($keyword)?>">
       </form>
-      <a href="login.php" class="login-btn">Login</a> 
     </div>
   </div>
 </header>
@@ -204,80 +222,232 @@ if (isset($_POST['subscribe'])) {
       <a href="#">La-Liga</a>
   </div>
   </div>
-
   </div>
   </div>
 
-  <div class="slider-container">
-    <div class="slider-wrapper" id="sliderWrapper">
-        <?php while($row = $slider_result->fetch_assoc()): ?>
-        <div class="slide">
-            <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="Slider Image">
+
+<!-- ==================== MOBILE ONLY SLIDER ==================== -->
+<div class="mobile-slider">
+    <div class="mobile-slider-wrapper" id="mobileSliderWrapper">
+
+        <div class="mobile-slide">
+            <img src="img/img/imag/Black and Blue Artificial Intelligence Facebook Cover (4).png" alt="Slide 1">
+            <div class="mobile-overlay"></div>
         </div>
-        <?php endwhile; ?>
-    </div>
-    <div class="dots" id="dotsContainer"></div>
-</div>
 
-<div class="latest-news-box">
-    <div class="latest-news-title">
-        <span>Latest News</span>
     </div>
 </div>
 
-  <div class="container">
-    <?php if ($result && $result->num_rows > 0): ?>
-      <?php while ($row = $result->fetch_assoc()): ?>
-        <div class="card">
-          <?php if (!empty($row['image'])): ?>
-            <img src="uploads/<?=htmlspecialchars($row['image'])?>" alt="<?=htmlspecialchars($row['title'])?>">
+<style>
+/* ===== Mobile Slider Only ===== */
+.mobile-slider {
+    display: none; /* hidden by default */
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 100%;
+    z-index: 1;
+}
+
+.mobile-slider-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.mobile-slide {
+    min-width: 100%;
+    position: relative;
+    height: 200px;
+}
+
+.mobile-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px;
+}
+
+.mobile-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+/* Show only on mobile */
+@media screen and (max-width: 768px) {
+    .mobile-slider { display: block; }
+}
+</style>
+<div class="mobile-line-row">
+  <div class="line-top-text">Today News [ Football Action ]</div>
+  <div class="mobile-line"></div>
+</div>
+<div class="news-section">
+  <?php if (!empty($news)): ?>
+    <?php foreach ($news as $index => $row): ?>
+      <div class="news-item">
+      <h3><?php echo htmlspecialchars($row['title']); ?></h3>
+        <?php if (!empty($row['image']) && file_exists(__DIR__ . "/images/" . $row['image'])): ?>
+          <img src="images/<?php echo htmlspecialchars($row['image']); ?>" alt="News Image">
+        <?php endif; ?>
+        <div class="news-content">
+          <?php 
+            $summary = $row['summary'] ?? '';
+            $truncated = (strlen($summary) > 250) ? mb_substr($summary, 0, 250).'...' : $summary;
+          ?>
+          <p id="summary-<?php echo $index; ?>" data-full="<?php echo htmlspecialchars($summary, ENT_QUOTES); ?>">
+            <?php echo htmlspecialchars($truncated); ?>
+          </p>
+          <?php if (strlen($summary) > 250): ?>
+            <span class="read-more-btn" onclick="toggleSummary(<?php echo $index; ?>)">See More</span>
           <?php endif; ?>
-          <div class="card-body">
-            <h3><?=htmlspecialchars($row['title'])?></h3>
-            <p><?=htmlspecialchars($row['summary'])?></p>
-            <a href="news.php?id=<?=$row['id']?>">Read More</a>
-          </div>
         </div>
-      <?php endwhile; ?>
-    <?php else: ?>
-      <div class="no-results">No news found.</div>
-    <?php endif; ?>
+      </div>
+      <!-- Horizontal row line -->
+<div class="row-line"></div>
+
+    <?php endforeach; ?>
+  <?php else: ?>
+    <p style="text-align:center;">No news available.</p>
+  <?php endif; ?>
+</div>
+
+<script>
+function toggleSummary(id) {
+    const p = document.getElementById('summary-' + id);
+    const fullText = p.dataset.full;
+    if (p.dataset.expanded === "true") {
+        p.textContent = fullText.substring(0, 250) + '...';
+        p.dataset.expanded = "false";
+    } else {
+        p.textContent = fullText;
+        p.dataset.expanded = "true";
+    }
+}
+</script>
+
+<?php
+// Fetch main news
+$keyword = trim($_GET['search'] ?? '');
+$sql = "SELECT id, headline, summary, images, views, created_at FROM news";
+if($keyword !== ''){
+    $safe = $conn->real_escape_string($keyword);
+    $sql .= " WHERE headline LIKE '%$safe%' OR summary LIKE '%$safe%' OR content LIKE '%$safe%'";
+}
+$sql .= " ORDER BY created_at DESC";
+$result = $conn->query($sql);
+
+if ($result && $result->num_rows > 0):
+    while ($row = $result->fetch_assoc()):
+        $images = !empty($row['images']) ? json_decode($row['images'], true) : [];
+?>
+
+    <!-- Mobile row card -->
+    <div class="mobile-card">
+        <?php if(!empty($images[0]) && file_exists("uploads/".$images[0])): ?>
+            <div class="mobile-card-img">
+                <img src="uploads/<?=htmlspecialchars($images[0])?>" alt="<?=htmlspecialchars($row['headline'])?>">
+            </div>
+        <?php endif; ?>
+        <div class="mobile-card-body">
+            <h3><?=htmlspecialchars($row['headline'])?></h3>
+            <span id="views-mobile-<?=$row['id']?>" class="" ><?= (int)($row['views'] ?? 0) ?> views</span>
+            <a href="news.php?id=<?=$row['id']?>" class="read-more" data-id="<?=$row['id']?>">Read More</a>
+        </div>
+    </div>
+
+<?php
+    endwhile;
+else:
+?>
+    <div class="no-results">No news found.</div>
+<?php endif; ?>
+</div>
+
+
+
+<?php if ($message): ?>
+  <div class="top-message <?php echo ($consent === 'rejected') ? 'reject' : ''; ?>">
+    <?php echo htmlspecialchars($message); ?>
   </div>
-  
-  <div class="adv-title">
-        <span>La-Liga Fixture</span>
+<?php endif; ?>
+
+<?php if (!$consent): ?>
+  <div class="consent-card" id="consentBox">
+    <h3>We value your privacy</h3>
+    <p>Please accept or reject our policy to continue.</p>
+    <button class="btn accept" onclick="setConsent('accepted')">Accept</button>
+    <button class="btn reject" onclick="setConsent('rejected')">Reject</button>
+  </div>
+<?php endif; ?>
+
+<script>
+function setConsent(choice){
+    document.cookie = "site_consent=" + choice + "; path=/; max-age=" + (60*60*24*30);
+    location.reload();
+}
+
+window.onload = function(){
+  let msg = document.querySelector('.top-message');
+  if(msg){
+    msg.style.display = 'block';
+    setTimeout(()=>{ msg.style.display='none'; }, 4000);
+  }
+}
+</script>
+<style>
+
+/* Default: hide all news */
+.news-container { display: none; }
+
+/* Only show on desktop/laptop */
+@media (min-width: 1024px) {
+  .news-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .news-card {
+    background: white;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+
+  .news-card img { width: 100%; height: 180px; object-fit: cover; }
+  .news-card .content { padding: 15px; }
+  .news-card .content h2 { font-size: 20px; margin: 0 0 10px; }
+  .news-card .content p { font-size: 14px; color: #555; }
+}
+</style>
+</head>
+<body>
+<h1>Latest Football News</h1>
+
+<div class="news-container">
+<?php while($row = $result->fetch_assoc()): ?>
+  <div class="news-card">
+    <?php if($row['image']): ?>
+      <img src="uploads/<?= $row['image'] ?>" alt="news">
+    <?php endif; ?>
+    <div class="content">
+      <h2><?= htmlspecialchars($row['title']) ?></h2>
+      <p><?= substr(htmlspecialchars($row['content']),0,100) ?>...</p>
     </div>
-
-    <div class="top-images">
-  <?php 
-    // Fetch all fixture images
-    $fixture_result = $conn->query("SELECT * FROM uploads WHERE type='fixture' ORDER BY id DESC");
-    while($row = $fixture_result->fetch_assoc()): 
-  ?>
-    <img src="uploads/<?= htmlspecialchars($row['image']); ?>" alt="Fixture">
-  <?php endwhile; ?>
+  </div>
+<?php endwhile; ?>
 </div>
-
-<br>
-  <div class="adv-title">
-        <span>Primer League Point Table</span>
-      
-    </div>
-    <br>
-    <div class="top-images">
-  <?php 
-
-    // Fetch all points images
-    $points_result = $conn->query("SELECT * FROM uploads WHERE type='points' ORDER BY id DESC");
-    while($row = $points_result->fetch_assoc()): 
-  ?>
-    <img src="uploads/<?= htmlspecialchars($row['image']); ?>" alt="Football Points">
-  <?php endwhile; ?>
-</div>
-
   <footer class="footer">
     <div class="footer-container">
-
       <!-- Logo -->
 <div class="footer-logo">
     <img src="img/509643969_122267074358024667_3310241970137801560_n (1).jpg" alt="Logo">
@@ -293,7 +463,6 @@ if (isset($_POST['subscribe'])) {
                 <li><a href="services.php">Services</a></li>
             </ul>
         </div>
-
         <!-- Social Media -->
         <div class="footer-social">
             <h3>Follow Us</h3>
@@ -304,7 +473,6 @@ if (isset($_POST['subscribe'])) {
                 <a href="#"><i class="fab fa-youtube"></i></a>
             </div>
         </div>
-
         <!-- Newsletter -->
         <div class="footer-newsletter">
             <h3>Subscribe</h3>
@@ -317,13 +485,10 @@ if (isset($_POST['subscribe'])) {
             <?php endif; ?>
         </div>
     </div>
-
     <div class="footer-bottom">
         <p>&copy; <?= date("Y") ?> Football Action. All rights reserved.</p>
     </div>
 </footer>
-
-
         <!-- Mobile all part here now so here full code -->
 <nav class="mobile-nav">
 <a href="football_news_front.php" class="nav-item">
@@ -343,11 +508,10 @@ if (isset($_POST['subscribe'])) {
     <i class="fas fa-calendar-alt"></i>
     <span>Event</span>
 </a>
-<a href="bio.php" class="nav-item">
-  <i class="fas fa-user"></i> <!-- Profile icon -->
-  <span>Player</span>
+<a href="fifa_rankiing.php" class="nav-item">
+<i class="fa-solid fa-futbol"></i>
+    <span>FIFA</span>
 </a>
-
 
 <!-- Mobile Top Navbar -->
 <div class="mobile-top-nav">
@@ -358,14 +522,11 @@ if (isset($_POST['subscribe'])) {
     <div  class="logo-main">
       <img src="img/Purple Blue Simple Professional Marketing Professional LinkedIn Article Cover Image.png" alt="Logo">
     </div>
-
-
     <!-- Right: Hamburger -->
     <div class="mobile-right">
         <div class="hamburger" onclick="toggleMobileMenu()">&#9776;</div>
     </div>
 </div>
-
 <!-- Mobile Sidebar -->
 <div class="mobile-sidebar" id="mobileSidebar">
     <div class="sidebar-header">
@@ -383,7 +544,6 @@ if (isset($_POST['subscribe'])) {
     <a href="#">Club</a>
     <a href="football_news_front.php">Transfers</a>
 </div>
-
 <script src="js/scrip.js"></script>
 </body>
 </html>
